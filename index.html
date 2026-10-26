@@ -168,7 +168,7 @@
 </div>
 
 <script>
-    // URL DE TU GOOGLE APPS SCRIPT CONECTADO AL EXCEL DE DRIVE
+    // URL DE GOOGLE APPS SCRIPT CONECTADO AL EXCEL DE DRIVE
     const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzW_R4E9fn_DBjRYguWP8X9vH4CEHJNj2oqFWkbewmfEHVvh-i25Tl_kfwVBf7Itmn6g/exec";
 
     // LISTADO COMPLETO MUNDIAL DE PAÍSES
@@ -477,7 +477,7 @@
         return letras[parseInt(num) % 23] === match[3];
     }
 
-    async function enviarDatos(event) {
+    function enviarDatos(event) {
         event.preventDefault();
         
         let tipoDoc = document.getElementById('tipoDocumento').value;
@@ -560,12 +560,20 @@
         };
 
         try {
-            await fetch(WEB_APP_URL, {
-                method: "POST",
-                mode: "no-cors",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(datosHuesped)
-            });
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = WEB_APP_URL;
+            form.target = '_blank';
+
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'data';
+            input.value = JSON.stringify(datosHuesped);
+
+            form.appendChild(input);
+            document.body.appendChild(form);
+            form.submit();
+            document.body.removeChild(form);
 
             document.getElementById('formularioViajero').style.display = 'none';
             document.getElementById('successMessage').style.display = 'block';
