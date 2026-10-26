@@ -168,7 +168,7 @@
 </div>
 
 <script>
-    // URL DE SHEETDB CONECTADA DIRECTAMENTE A TU EXCEL
+    // NUEVA URL DE SHEETDB ACTUALIZADA
     const SHEETDB_URL = "https://sheetdb.io/api/v1/1y3l5p6ltsbpa";
 
     // LISTADO COMPLETO MUNDIAL DE PAÍSES
@@ -566,7 +566,7 @@
                     'Accept': 'application/json',
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify(datosHuesped)
+                body: JSON.stringify({ data: [datosHuesped] })
             });
 
             if (response.ok) {
@@ -574,7 +574,7 @@
                 document.getElementById('successMessage').style.display = 'block';
             } else {
                 let errText = await response.text();
-                alert("Error al guardar: " + errText);
+                alert("Error al guardar en SheetDB: " + errText);
                 btn.disabled = false;
                 btn.innerText = "Enviar Datos de Registro";
             }
