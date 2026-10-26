@@ -169,7 +169,7 @@
 
 <script>
     // URL DE SHEETDB CONECTADA DIRECTAMENTE A TU EXCEL
-    const SHEETDB_URL = "https://sheetdb.io/api/v1/9inkybqbhc9um";
+    const SHEETDB_URL = "https://sheetdb.io/api/v1/1y3l5p6ltsbpa";
 
     // LISTADO COMPLETO MUNDIAL DE PAÍSES
     const PAISES_MUNDO = [
@@ -526,14 +526,14 @@
 
         const datosHuesped = {
             referencia: "RES-001",
-            fechaContrato: new Date().toISOString().split('T')[0] + "+02:00",
-            fechaEntrada: new Date().toISOString(),
-            fechaSalida: new Date().toISOString(),
-            numPersonas: 1,
-            numHabitaciones: 1,
+            fechaContrato: new Date().toISOString().split('T')[0],
+            fechaEntrada: new Date().toISOString().split('T')[0],
+            fechaSalida: new Date().toISOString().split('T')[0],
+            numPersonas: "1",
+            numHabitaciones: "1",
             internet: "true",
             tipoPago: document.getElementById('tipoPago').value,
-            fechaPago: new Date().toISOString().split('T')[0] + "+02:00",
+            fechaPago: new Date().toISOString().split('T')[0],
             medioPago: "Online",
             titular: document.getElementById('nombre').value + " " + document.getElementById('apellido1').value,
             caducidadTarjeta: "12/2027",
@@ -544,7 +544,7 @@
             tipoDocumento: tipoDoc,
             numeroDocumento: numDoc,
             soporteDocumento: document.getElementById('soporteDocumento').value,
-            fechaNacimiento: document.getElementById('fechaNacimiento').value + "+02:00",
+            fechaNacimiento: document.getElementById('fechaNacimiento').value,
             nacionalidad: document.getElementById('nacionalidad').value,
             sexo: document.getElementById('sexo').value,
             direccion: document.getElementById('direccion').value,
@@ -560,21 +560,26 @@
         };
 
         try {
-            await fetch(SHEETDB_URL, {
+            let response = await fetch(SHEETDB_URL, {
                 method: 'POST',
                 headers: {
                     'Accept': 'application/json',
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({
-                    data: [datosHuesped]
-                })
+                body: JSON.stringify(datosHuesped)
             });
 
-            document.getElementById('formularioViajero').style.display = 'none';
-            document.getElementById('successMessage').style.display = 'block';
+            if (response.ok) {
+                document.getElementById('formularioViajero').style.display = 'none';
+                document.getElementById('successMessage').style.display = 'block';
+            } else {
+                let errText = await response.text();
+                alert("Error al guardar: " + errText);
+                btn.disabled = false;
+                btn.innerText = "Enviar Datos de Registro";
+            }
         } catch (error) {
-            alert("Hubo un error al enviar los datos. Por favor, inténtalo de nuevo.");
+            alert("Hubo un error de red al enviar los datos.");
             btn.disabled = false;
             btn.innerText = "Enviar Datos de Registro";
         }
