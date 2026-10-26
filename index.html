@@ -168,8 +168,8 @@
 </div>
 
 <script>
-    // URL DE GOOGLE APPS SCRIPT CONECTADO AL EXCEL DE DRIVE
-    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzW_R4E9fn_DBjRYguWPv8X9vH4CEHJNj2oqFWkbewmfEHVvh-i25Tl_kfwVBF7Itmn6g/exec";
+    // URL DE SHEETDB CONECTADA DIRECTAMENTE A TU EXCEL
+    const SHEETDB_URL = "https://sheetdb.io/api/v1/fkz3dcqc6k4f1";
 
     // LISTADO COMPLETO MUNDIAL DE PAÍSES
     const PAISES_MUNDO = [
@@ -477,7 +477,7 @@
         return letras[parseInt(num) % 23] === match[3];
     }
 
-    function enviarDatos(event) {
+    async function enviarDatos(event) {
         event.preventDefault();
         
         let tipoDoc = document.getElementById('tipoDocumento').value;
@@ -539,7 +539,7 @@
             caducidadTarjeta: "12/2027",
             rol: "VI",
             nombre: document.getElementById('nombre').value,
-            apellido1: document.getElementById('apellido1').value,
+            apellido1: document.getElementById('apellido1'].value,
             apellido2: document.getElementById('apellido2').value,
             tipoDocumento: tipoDoc,
             numeroDocumento: numDoc,
@@ -560,20 +560,16 @@
         };
 
         try {
-            const form = document.createElement('form');
-            form.method = 'POST';
-            form.action = WEB_APP_URL;
-            form.target = '_blank';
-
-            const input = document.createElement('input');
-            input.type = 'hidden';
-            input.name = 'data';
-            input.value = JSON.stringify(datosHuesped);
-
-            form.appendChild(input);
-            document.body.appendChild(form);
-            form.submit();
-            document.body.removeChild(form);
+            await fetch(SHEETDB_URL, {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    data: [datosHuesped]
+                })
+            });
 
             document.getElementById('formularioViajero').style.display = 'none';
             document.getElementById('successMessage').style.display = 'block';
