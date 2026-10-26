@@ -35,18 +35,18 @@
 
     <form id="formularioViajero" onsubmit="enviarDatos(event)">
         
-        <!-- Datos de Estancia -->
+        <!-- Datos de Estancia (Solo Fechas) -->
         <fieldset>
             <legend>Datos de la Estancia</legend>
             <div class="row">
                 <div class="form-group">
-                    <label for="fechaEntrada">Fecha y Hora de Entrada *</label>
-                    <input type="datetime-local" id="fechaEntrada" required>
+                    <label for="fechaEntrada">Fecha de Entrada *</label>
+                    <input type="date" id="fechaEntrada" required>
                 </div>
                 <div class="form-group">
-                    <label for="fechaSalida">Fecha y Hora de Salida *</label>
-                    <input type="datetime-local" id="fechaSalida" required>
-                    <div id="errorSalida" class="error-msg">La fecha y hora de salida no puede ser anterior ni igual a la de entrada.</div>
+                    <label for="fechaSalida">Fecha de Salida *</label>
+                    <input type="date" id="fechaSalida" required>
+                    <div id="errorSalida" class="error-msg">La fecha de salida debe ser posterior (mínimo un día después) a la de entrada.</div>
                 </div>
             </div>
         </fieldset>
@@ -514,7 +514,6 @@
         let errorCP = document.getElementById('errorCP');
         let errorMun = document.getElementById('errorMun');
         let errorSalida = document.getElementById('errorSalida');
-        let errorNacimiento = document.getElementById('errorNacimiento');
         let valido = true;
 
         if (tipoDoc === 'NIF' && !validarDNI(numDoc)) {
@@ -541,25 +540,19 @@
             errorMun.style.display = 'none';
         }
 
-        // Validación de fechas de estancia
+        // Validación: la fecha de salida debe ser mínimo un día posterior a la de entrada
         if (fEntradaVal && fSalidaVal) {
-            if (new Date(fSalidaVal) <= new Date(fEntradaVal)) {
+            let dEntrada = new Date(fEntradaVal);
+            let dSalida = new Date(fSalidaVal);
+            
+            // Calculamos la diferencia en días
+            let diferenciaDias = (dSalida - dEntrada) / (1000 * 60 * 60 * 24);
+
+            if (diferenciaDias < 1) {
                 errorSalida.style.display = 'block';
                 valido = false;
             } else {
                 errorSalida.style.display = 'none';
-            }
-        }
-
-        // Validación de fecha de nacimiento (no superior ni igual a hoy)
-        if (fNacVal) {
-            let hoy = new Date();
-            hoy.setHours(0, 0, 0, 0);
-            if (new Date(fNacVal) >= hoy) {
-                errorNacimiento.style.display = 'block';
-                valido = false;
-            } else {
-                errorNacimiento.style.display = 'none';
             }
         }
 
@@ -575,10 +568,10 @@
         const datosHuesped = {
             referencia: "RES-001",
             fechaContrato: new Date().toISOString().split('T')[0],
-            fechaEntrada: fEntradaVal ? fEntradaVal.split('T')[0] : new Date().toISOString().split('T')[0],
-            horaEntrada: fEntradaVal && fEntradaVal.split('T')[1] ? fEntradaVal.split('T')[1] + ":00.000+02:00" : "12:00:00.000+02:00",
-            fechaSalida: fSalidaVal ? fSalidaVal.split('T')[0] : new Date().toISOString().split('T')[0],
-            horaSalida: fSalidaVal && fSalidaVal.split('T')[1] ? fSalidaVal.split('T')[1] + ":00.000+02:00" : "12:00:00.000+02:00",
+            fechaEntrada: fEntradaVal,
+            horaEntrada: "12:00:00.000+02:00", // Hora por defecto fija
+            fechaSalida: fSalidaVal,
+            horaSalida: "12:00:00.000+02:00", // Hora por defecto fija
             numPersonas: "1",
             numHabitaciones: "1",
             internet: "true",
