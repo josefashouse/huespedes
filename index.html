@@ -133,16 +133,9 @@
                     <div id="errorCP" class="error-msg">Para España, el código postal debe tener exactamente 5 dígitos numéricos.</div>
                 </div>
             </div>
-            <div class="row">
-                <div class="form-group" id="divCodigoMun">
-                    <label for="codigoMunicipio">Código de Municipio (5 dígitos) *</label>
-                    <input type="text" id="codigoMunicipio" placeholder="Ej: 36039" required>
-                    <div id="errorMun" class="error-msg">El código de municipio debe tener 5 dígitos.</div>
-                </div>
-                <div class="form-group">
-                    <label for="nombreMunicipio">Municipio (Localidad) *</label>
-                    <input type="text" id="nombreMunicipio" placeholder="Ej: O Porriño" required>
-                </div>
+            <div class="form-group">
+                <label for="nombreMunicipio">Municipio (Localidad) *</label>
+                <input type="text" id="nombreMunicipio" required placeholder="Ej: O Porriño">
             </div>
         </fieldset>
 
@@ -296,17 +289,7 @@
     }
 
     function controlarPaisResidencia() {
-        let pais = document.getElementById('paisResidencia').value;
-        let divMun = document.getElementById('divCodigoMun');
-        let inputMun = document.getElementById('codigoMunicipio');
-
-        if (pais === 'ESP') {
-            divMun.style.display = 'block';
-            inputMun.required = true;
-        } else {
-            divMun.style.display = 'block';
-            inputMun.required = true;
-        }
+        // No se requiere lógica especial ya que ahora pedimos Código Postal y Municipio por separado para cualquier residencia
     }
 
     function validarDNI(dni) {
@@ -332,7 +315,6 @@
         let numDoc = document.getElementById('numeroDocumento').value.trim();
         let cp = document.getElementById('codigoPostal').value.trim();
         let paisRes = document.getElementById('paisResidencia').value;
-        let munEsp = document.getElementById('codigoMunicipio').value.trim();
         let nomMun = document.getElementById('nombreMunicipio').value.trim();
         
         let fEntradaVal = document.getElementById('fechaEntrada').value;
@@ -340,7 +322,6 @@
         
         let errorDoc = document.getElementById('errorDoc');
         let errorCP = document.getElementById('errorCP');
-        let errorMun = document.getElementById('errorMun');
         let errorSalida = document.getElementById('errorSalida');
         let valido = true;
 
@@ -361,14 +342,7 @@
             errorCP.style.display = 'none';
         }
 
-        if (paisRes === 'ESP' && !/^\d{5}$/.test(munEsp)) {
-            errorMun.style.display = 'block';
-            valido = false;
-        } else {
-            errorMun.style.display = 'none';
-        }
-
-        // Validación: la fecha de salida debe ser mínimo un día posterior a la de entrada
+        // Validación estricta: la fecha de salida debe ser mínimo un día posterior a la de entrada
         if (fEntradaVal && fSalidaVal) {
             let dEntrada = new Date(fEntradaVal);
             let dSalida = new Date(fSalidaVal);
@@ -418,9 +392,8 @@
             sexo: document.getElementById('sexo').value,
             direccion: document.getElementById('direccion').value,
             direccionComplementaria: "",
-            codigoMunicipio: paisRes === 'ESP' ? munEsp : "00000",
-            nombreMunicipio: nomMun,
             codigoPostal: cp,
+            nombreMunicipio: nomMun,
             pais: paisRes,
             telefono: document.getElementById('telefono').value,
             telefono2: "",
