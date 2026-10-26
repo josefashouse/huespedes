@@ -46,6 +46,7 @@
                 <div class="form-group">
                     <label for="fechaSalida">Fecha y Hora de Salida *</label>
                     <input type="datetime-local" id="fechaSalida" required>
+                    <div id="errorSalida" class="error-msg">La fecha y hora de salida no puede ser anterior ni igual a la de entrada.</div>
                 </div>
             </div>
         </fieldset>
@@ -80,6 +81,7 @@
             <div class="form-group">
                 <label for="fechaNacimiento">Fecha de Nacimiento *</label>
                 <input type="date" id="fechaNacimiento" required>
+                <div id="errorNacimiento" class="error-msg">La fecha de nacimiento no puede ser posterior ni igual al día de hoy.</div>
             </div>
         </fieldset>
 
@@ -269,17 +271,23 @@
         {nombre: "Uzbekistán", code: "UZB"}, {nombre: "Vanuatu", code: "VUT"}, {nombre: "Vaticano (Ciudad del)", code: "VAT"},
         {nombre: "Venezuela", code: "VEN"}, {nombre: "Vietnam", code: "VNM"}, {nombre: "Wallis y Futuna", code: "WLF"},
         {nombre: "Yemen", code: "YEM"}, {nombre: "Yibuti", code: "DJI"}, {nombre: "Zambia", code: "ZMB"},
-        {nombre: "Zimbabue", code: "ZWE]"
+        {nombre: "Zimbabue", code: "ZWE"}
     ];
 
     function cargarPaises() {
         let selectNac = document.getElementById('nacionalidad');
         let selectRes = document.getElementById('paisResidencia');
+        
         PAISES_MUNDO.sort((a, b) => a.nombre.localeCompare(b.nombre));
+
         PAISES_MUNDO.forEach(p => {
             let opt1 = new Option(p.nombre, p.code);
             let opt2 = new Option(p.nombre, p.code);
-            if(p.code === 'ESP') { opt1.selected = true; opt2.selected = true; }
+            
+            if(p.code === 'ESP') { 
+                opt1.selected = true; 
+                opt2.selected = true; 
+            }
             selectNac.add(opt1);
             selectRes.add(opt2);
         });
@@ -291,6 +299,7 @@
         let divNom = document.getElementById('divNombreMun');
         let inputMun = document.getElementById('codigoMunicipio');
         let inputNom = document.getElementById('nombreMunicipio');
+
         if (pais === 'ESP') {
             divMun.style.display = 'block';
             divNom.style.display = 'none';
@@ -328,12 +337,18 @@
         let cp = document.getElementById('codigoPostal').value.trim();
         let paisRes = document.getElementById('paisResidencia').value;
         let munEsp = document.getElementById('codigoMunicipio').value.trim();
+        let fEntradaVal = document.getElementById('fechaEntrada').value;
+        let fSalidaVal = document.getElementById('fechaSalida').value;
+        let fNacVal = document.getElementById('fechaNacimiento').value;
         
         let errorDoc = document.getElementById('errorDoc');
         let errorCP = document.getElementById('errorCP');
         let errorMun = document.getElementById('errorMun');
+        let errorSalida = document.getElementById('errorSalida');
+        let errorNacimiento = document.getElementById('errorNacimiento');
         let valido = true;
 
+        // Validar DNI / NIE
         if (tipoDoc === 'NIF' && !validarDNI(numDoc)) {
             errorDoc.style.display = 'block';
             valido = false;
@@ -344,6 +359,7 @@
             errorDoc.style.display = 'none';
         }
 
+        // Validar Código Postal España
         if (paisRes === 'ESP' && !/^\d{5}$/.test(cp)) {
             errorCP.style.display = 'block';
             valido = false;
@@ -351,6 +367,7 @@
             errorCP.style.display = 'none';
         }
 
+        // Validar Municipio España
         if (paisRes === 'ESP' && !/^\d{5}$/.test(munEsp)) {
             errorMun.style.display = 'block';
             valido = false;
@@ -358,8 +375,26 @@
             errorMun.style.display = 'none';
         }
 
+        // Validar Fecha Salida > Fecha Entrada
+        if (new Date(fSalidaVal) <= new Date(fEntradaVal)) {
+            errorSalida.style.display = 'block';
+            valido = false;
+        } else {
+            errorSalida.style.display = 'none';
+        }
+
+        // Validar Fecha Nacimiento < Día de hoy
+        let hoy = new Date();
+        hoy.setHours(0, 0, 0, 0);
+        if (new Date(fNacVal) >= hoy) {
+            errorNacimiento.style.display = 'block';
+            valido = false;
+        } else {
+            errorNacimiento.style.display = 'none';
+        }
+
         if (!valido) {
-            alert("Existen errores o formato incorrecto en los campos marcados en rojo.");
+            alert("Existen errores o fechas incorrectas en los campos marcados en rojo.");
             return;
         }
 
@@ -367,17 +402,13 @@
         btn.disabled = true;
         btn.innerText = "Enviando datos...";
 
-        // Separar fecha y hora de entrada y salida seleccionadas en el formulario
-        let fEntradaVal = document.getElementById('fechaEntrada').value; // Formato: "YYYY-MM-DDTHH:mm"
-        let fSalidaVal = document.getElementById('fechaSalida').value;
-
         const datosHuesped = {
             referencia: "RES-001",
             fechaContrato: new Date().toISOString().split('T')[0],
-            fechaEntrada: fEntradaVal ? fEntradaVal.split('T')[0] : new Date().toISOString().split('T')[0],
-            horaEntrada: fEntradaVal && fEntradaVal.split('T')[1] ? fEntradaVal.split('T')[1] + ":00.000+02:00" : "12:00:00.000+02:00",
-            fechaSalida: fSalidaVal ? fSalidaVal.split('T')[0] : new Date().toISOString().split('T')[0],
-            horaSalida: fSalidaVal && fSalidaVal.split('T')[1] ? fSalidaVal.split('T')[1] + ":00.000+02:00" : "12:00:00.000+02:00",
+            fechaEntrada: fEntradaVal.split('T')[0],
+            horaEntrada: fEntradaVal.split('T')[1] + ":00.000+02:00",
+            fechaSalida: fSalidaVal.split('T')[0],
+            horaSalida: fSalidaVal.split('T')[1] + ":00.000+02:00",
             numPersonas: "1",
             numHabitaciones: "1",
             internet: "true",
@@ -393,7 +424,7 @@
             tipoDocumento: tipoDoc,
             numeroDocumento: numDoc,
             soporteDocumento: document.getElementById('soporteDocumento').value,
-            fechaNacimiento: document.getElementById('fechaNacimiento').value,
+            fechaNacimiento: fNacVal,
             nacionalidad: document.getElementById('nacionalidad').value,
             sexo: document.getElementById('sexo').value,
             direccion: document.getElementById('direccion').value,
