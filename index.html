@@ -35,7 +35,7 @@
 
     <form id="formularioViajero" onsubmit="enviarDatos(event)">
         
-        <!-- Estancia y Fechas -->
+        <!-- Datos de Estancia -->
         <fieldset>
             <legend>Datos de la Estancia</legend>
             <div class="row">
@@ -185,8 +185,10 @@
 </div>
 
 <script>
+    // NUEVA URL DE SHEETDB ACTUALIZADA
     const SHEETDB_URL = "https://sheetdb.io/api/v1/1y3l5p6ltsbpa";
 
+    // LISTADO COMPLETO MUNDIAL DE PAÍSES
     const PAISES_MUNDO = [
         {nombre: "Afganistán", code: "AFG"},
         {nombre: "Albania", code: "ALB"},
@@ -500,6 +502,7 @@
         let cp = document.getElementById('codigoPostal').value.trim();
         let paisRes = document.getElementById('paisResidencia').value;
         let munEsp = document.getElementById('codigoMunicipio').value.trim();
+        
         let fEntradaVal = document.getElementById('fechaEntrada').value;
         let fSalidaVal = document.getElementById('fechaSalida').value;
         let fNacVal = document.getElementById('fechaNacimiento').value;
@@ -535,20 +538,26 @@
             errorMun.style.display = 'none';
         }
 
-        if (new Date(fSalidaVal) <= new Date(fEntradaVal)) {
-            errorSalida.style.display = 'block';
-            valido = false;
-        } else {
-            errorSalida.style.display = 'none';
+        // Validación de fechas de estancia
+        if (fEntradaVal && fSalidaVal) {
+            if (new Date(fSalidaVal) <= new Date(fEntradaVal)) {
+                errorSalida.style.display = 'block';
+                valido = false;
+            } else {
+                errorSalida.style.display = 'none';
+            }
         }
 
-        let hoy = new Date();
-        hoy.setHours(0, 0, 0, 0);
-        if (new Date(fNacVal) >= hoy) {
-            errorNacimiento.style.display = 'block';
-            valido = false;
-        } else {
-            errorNacimiento.style.display = 'none';
+        // Validación de fecha de nacimiento (no superior ni igual a hoy)
+        if (fNacVal) {
+            let hoy = new Date();
+            hoy.setHours(0, 0, 0, 0);
+            if (new Date(fNacVal) >= hoy) {
+                errorNacimiento.style.display = 'block';
+                valido = false;
+            } else {
+                errorNacimiento.style.display = 'none';
+            }
         }
 
         if (!valido) {
@@ -563,10 +572,10 @@
         const datosHuesped = {
             referencia: "RES-001",
             fechaContrato: new Date().toISOString().split('T')[0],
-            fechaEntrada: fEntradaVal.split('T')[0],
-            horaEntrada: fEntradaVal.split('T')[1] + ":00.000+02:00",
-            fechaSalida: fSalidaVal.split('T')[0],
-            horaSalida: fSalidaVal.split('T')[1] + ":00.000+02:00",
+            fechaEntrada: fEntradaVal ? fEntradaVal.split('T')[0] : new Date().toISOString().split('T')[0],
+            horaEntrada: fEntradaVal && fEntradaVal.split('T')[1] ? fEntradaVal.split('T')[1] + ":00.000+02:00" : "12:00:00.000+02:00",
+            fechaSalida: fSalidaVal ? fSalidaVal.split('T')[0] : new Date().toISOString().split('T')[0],
+            horaSalida: fSalidaVal && fSalidaVal.split('T')[1] ? fSalidaVal.split('T')[1] + ":00.000+02:00" : "12:00:00.000+02:00",
             numPersonas: "1",
             numHabitaciones: "1",
             internet: "true",
